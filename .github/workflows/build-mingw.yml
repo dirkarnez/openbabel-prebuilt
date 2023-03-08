@@ -33,8 +33,17 @@ jobs:
           curl https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2-windows-x86_64.zip -L --output cmake-3.22.2-windows-x86_64.zip &&^
           dir &&^
           7z.exe x cmake-3.22.2-windows-x86_64.zip
+
+      - name: curl PortableGit-2.38.1-64-bit.7z.exe
+        shell: cmd
+        run: cd /d ${{ github.workspace }} && curl https://github.com/git-for-windows/git/releases/download/v2.38.1.windows.1/PortableGit-2.38.1-64-bit.7z.exe -L --output PortableGit-2.38.1-64-bit.7z.exe && dir && 7z.exe x PortableGit-2.38.1-64-bit.7z.exe -o"PortableGit-2.38.1-64-bit"
         
-# add_subdirectory(tools)
+      - shell: cmd
+        run: |
+          cd openbabel &&^
+          dir &&^
+          "${{ github.workspace }}\PortableGit-2.38.1-64-bit\usr\bin\sed.exe" -i "s/add_subdirectory(tools)/#add_subdirectory/g" CMakeLists.txt &&^
+          type CMakeLists.txt
         
       - name: set PATH, check mingw version, cmake generate, build and install
         shell: cmd
