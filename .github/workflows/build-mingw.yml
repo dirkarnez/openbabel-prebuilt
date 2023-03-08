@@ -46,7 +46,7 @@ jobs:
           cd openbabel && ^
           cmake.exe -G "MinGW Makefiles" ^
           -DCMAKE_BUILD_TYPE=Release ^
-          -DBUILD_SHARED_LIBS=OFF ^
+          -DBUILD_SHARED=OFF ^
           -DCMAKE_INSTALL_PREFIX="cmake-build/${{ env.cmakeInstallationPath }}" ^
           -B./cmake-build &&^
           cd cmake-build &&^
