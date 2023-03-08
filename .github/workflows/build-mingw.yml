@@ -34,6 +34,8 @@ jobs:
           dir &&^
           7z.exe x cmake-3.22.2-windows-x86_64.zip
         
+# add_subdirectory(tools)
+        
       - name: set PATH, check mingw version, cmake generate, build and install
         shell: cmd
         run: |
