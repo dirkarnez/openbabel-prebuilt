@@ -42,7 +42,7 @@ jobs:
         run: |
           cd openbabel &&^
           dir &&^
-          "${{ github.workspace }}\PortableGit-2.38.1-64-bit\usr\bin\sed.exe" -i "s/add_subdirectory(tools)/#add_subdirectory/g" CMakeLists.txt &&^
+          "${{ github.workspace }}\PortableGit-2.38.1-64-bit\usr\bin\sed.exe" -i "s/add_subdirectory(tools)/# add_subdirectory(tools)/g" CMakeLists.txt &&^
           type CMakeLists.txt
         
       - name: set PATH, check mingw version, cmake generate, build and install
