@@ -1,0 +1,68 @@
+name: cpp-cmake-mingw-prebuilt-release-actions-workflow
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'c*'
+      
+jobs:
+  build:
+    name: Create Release
+    runs-on: windows-latest
+    env:
+      libraryName: openbabel
+      cmakeInstallationPath: openbabel-installation
+      tagName: openbabel-3-1-1
+      mingwTargetZip: openbabel-${{ github.ref_name }}-mingw64-x86_64-posix-seh-rev0-8.1.0.zip
+    steps:
+      - name: git clone tinynurbs
+        shell: cmd
+        run: git clone https://github.com/openbabel/openbabel.git && cd openbabel && git checkout ${{ env.tagName }}
+        
+      - name: curl x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z
+        shell: cmd
+        run: |
+          curl https://github.com/2641797006/c/blob/master/GCC-zip/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z?raw=true -L --output x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z &&^
+          dir &&^
+          7z.exe x x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z
+        
+      - name: curl cmake-3.22.2-windows-x86_64.zip
+        shell: cmd
+        run: |
+          curl https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2-windows-x86_64.zip -L --output cmake-3.22.2-windows-x86_64.zip &&^
+          dir &&^
+          7z.exe x cmake-3.22.2-windows-x86_64.zip
+        
+      - name: set PATH, check mingw version, cmake generate, build and install
+        shell: cmd
+        run: |
+          set PATH=^
+          ${{ github.workspace }}\mingw64;^
+          ${{ github.workspace }}\mingw64\bin;^
+          ${{ github.workspace }}\cmake-3.22.2-windows-x86_64\bin;
+          gcc --version &&^
+          set CD_LINUX=%CD:\=/%
+          cd openbabel && ^
+          cmake.exe -G "MinGW Makefiles" ^
+          -DCMAKE_BUILD_TYPE=Release ^
+          -DBUILD_SHARED_LIBS=OFF ^
+          -DCMAKE_INSTALL_PREFIX="cmake-build/${{ env.cmakeInstallationPath }}" ^
+          -B./cmake-build &&^
+          cd cmake-build &&^
+          cmake --build . &&^
+          cmake --install . 
+            
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          directory: "openbabel/cmake-build/${{ env.cmakeInstallationPath }}"
+          filename: "${{ env.mingwTargetZip }}"
+
+      - name: Release prebuilt
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "openbabel/cmake-build/${{ env.cmakeInstallationPath }}/${{ env.mingwTargetZip }}"
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
